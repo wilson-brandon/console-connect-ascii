@@ -12,23 +12,23 @@ Console Connect Four
 def initGrid(): #initializing 2D array 
     grid4 = []
     for i in range(6): # 6 rows
-        grid4.append(['_','_','_','_','_','_','_']) # 7 cols
+        grid4.append(['-','-','-','-','-','-','-']) # 7 cols
     return grid4
 
 def displayGrid(grid): #format, transpose and display grid in a nice way
    header1 = ['1', '2', '3', '4', '5', '6','7'] # column headers
    print('\n')
-   print(header1) 
-   print('\n')
+   print(' ','   '.join(header1)) # list to string conversion
+   print(' ','__________________________')
    for i in range(6):
-        print(grid[i])
-   print('____________________________________')
+        print(' ','   '.join(grid[i]))
+   print(' ','__________________________')
 
 def playPiece(grid, col, player, playerDict): 
    # grid array, col integer, player1 turn boolean, player piece dictionary
    blanks = 0 
    for i in range(6): #looping through column to find unoccupied space
-       if grid[i][col] == '_':  
+       if grid[i][col] == '-':  
            blanks += 1 #adding up number of blank spaces in column
    grid[blanks-1][col] = playerDict[player][0] #placing piece
    return grid  
@@ -43,7 +43,7 @@ def changePlayer(player): # flip player turn boolean
 def fullGridCheck(grid):
     for i in range(len(grid)):
         for j in range(len(grid[0])):
-            if grid[i][j] == '_':
+            if grid[i][j] == '-':
                 return 0
     return 1    
     
@@ -68,8 +68,8 @@ def vertCheck(grid, player, playerDict): #checks for vertical connect four
 ### Initialize the game ###
 
 playerkey = {
-    True: ['R','Player 1'], 
-    False: ['B', 'Player 2']
+    True: ['O','Player 1'], 
+    False: ['X', 'Player 2']
     } #piece and player dictionary
 player1 = False  # turn boolean, needs to default at False
 grid = initGrid() # initialize the grid

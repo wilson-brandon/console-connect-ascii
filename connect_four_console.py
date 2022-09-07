@@ -9,90 +9,122 @@ Console Connect Four
 
 ### Game Functions ###
 
-def initGrid(): #initializing 2D array 
-    grid4 = []
-    for i in range(6): # 6 rows
-        grid4.append(['-','-','-','-','-','-','-']) # 7 cols
-    return grid4
+class Grid:
+    def __init__(self, row, col, blankspace):
+        self.blank = blankspace # character for empty grid spaces
+        self.rows = row         # grid rows
+        self.columns = col      # grid columns
+        self.grid = [[self.blank for i in range(self.columns)]\
+                     for j in range(self.rows)] # building grid
+        self.isFull = False
+        self.isFour = False 
+  
+    def displayGrid(self): 
+        """Prints out playing grid"""
+        headcount = 1
+        header = []
+        for i in range(self.columns): #filling header list
+            header.append(str(headcount))
+            headcount += 1
+        print('\n')
+        print(' |','   '.join(header),'|') # convert header to string, print
+        for i in range(self.rows):
+             print(' |','   '.join(self.grid[i]),'|') # print rows as string
 
-def displayGrid(grid): #format, transpose and display grid in a nice way
-   header1 = ['1', '2', '3', '4', '5', '6','7'] # column headers
-   print('\n')
-   print(' ','   '.join(header1)) # list to string conversion
-   print(' ','__________________________')
-   for i in range(6):
-        print(' ','   '.join(grid[i]))
-   print(' ','__________________________')
-
-def playPiece(grid, col, player, playerDict): 
-   # grid array, col integer, player1 turn boolean, player piece dictionary
-   blanks = 0 
-   for i in range(6): #looping through column to find unoccupied space
-       if grid[i][col] == '-':  
-           blanks += 1 #adding up number of blank spaces in column
-   grid[blanks-1][col] = playerDict[player][0] #placing piece
-   return grid  
-
-def changePlayer(player): # flip player turn boolean
-    if player == True:
-        player = False
-    else:
-        player = True
-    return player
-
-def fullGridCheck(grid):
-    for i in range(len(grid)):
-        for j in range(len(grid[0])):
-            if grid[i][j] == '-':
+    def fullGridCheck(self):
+        """Checks if top row is full (board is full)"""
+        for i in self.grid[0]:
+            if self.grid[0][i] == self.blank:
                 return 0
-    return 1    
-    
-#def checkColFull(grid)  
-#def horizCheck():
-#def diagcheck():
-def vertCheck(grid, player, playerDict): #checks for vertical connect four
-    count = 0
-    for j in range(len(grid[0])): #scan across vertical columns
-        for i in range(len(grid)): #scan down the column
-            if grid[i][j] == playerDict[player][0]: #counts matching pieces
-                count += 1 
-            else:
-                count = 0
-        if count >= 4: #break out the loop if vertical 4 in a row found
-            break
-    if count >= 4:
         return 1
-    else:
-        return 0
-                
+
+    def playPiece(self, col, player, playerkey): 
+        """Plays a piece. Integer column, P1/P2 boolean, player dictionary"""
+        blanks = 0 
+        piece = playerkey[player][0] 
+        for i in range(self.rows): # looping through column to count blanks
+            if self.grid[i][col] == self.blank:  
+                blanks += 1 # adding up number of blank spaces in column
+        self.grid[blanks - 1][col] = piece # placing piece
+        return self.grid
+    
+    def vertCheck(self, player, playerkey):
+        """Checking for a vertical connect four"""
+        count = 0
+        piece = playerkey[player][0]
+        for j in range (self.columns): 
+            for i in range (self.rows): # scanning down columns
+                if self.grid[i][j] == piece:
+                    count += 1
+                    if count >= 4:
+                        self.isFour = True   
+                        return
+                else:
+                    count = 0 # reset count if blank space 
+        if count >= 4:
+            self.isFour = True 
+            
+    def horizCheck(self, player, playerkey):
+        """Checking for a vertical connect four"""
+        count = 0
+        piece = playerkey[player][0]
+        for i in range (self.rows): 
+            for j in range (self.columns): # scanning across columns
+                if self.grid[i][j] == piece:
+                    count += 1
+                    if count >= 4:
+                        self.isFour = True   
+                        return
+                else:
+                    count = 0 # reset count if blank space 
+        if count >= 4:
+            self.isFour = True
+                    
+def changePlayer(player):
+   """Change player turn boolean"""
+   if player == True:
+       return False
+   else:
+       return True
+
 ### Initialize the game ###
 
+# Set board dimensions and blank space char
+rows = 6
+columns = 7
+blankSpace = '-'
+
+# Initialize
+gameGrid = Grid(rows,columns,blankSpace) # grid class instance
+gameGrid.displayGrid()
 playerkey = {
     True: ['O','Player 1'], 
     False: ['X', 'Player 2']
     } #piece and player dictionary
 player1 = False  # turn boolean, needs to default at False
-grid = initGrid() # initialize the grid
-displayGrid(grid) # print starting grid
 gameTurn = 1 #Turn number
-connectFour = 0 #Vertical Connect 4
-fullGrid = 0
+
 
 ### Play ###
 
-while connectFour == 0 and fullGrid == 0:
-    player1 = changePlayer(player1) # ,change players
+while gameGrid.isFour == 0 and gameGrid.isFull == 0:
+    player1 = changePlayer(player1) # change players
+    
+    # Column select prompt
     print('\n')
-    print('Turn',gameTurn,'.',playerkey[player1][1],'please select column to drop piece...')
+    col_prompt = 'please select column to drop piece...'
+    print('Turn',gameTurn,'.',playerkey[player1][1], col_prompt)
     input_col = int(input())-1 # user input column
     
-    grid = playPiece(grid, input_col, player1, playerkey) # play a piece
-    displayGrid(grid) #display new grid
-    connectFour = vertCheck(grid, player1, playerkey)  
-    fullGrid = fullGridCheck(grid)
+    gameGrid.playPiece(input_col,player1,playerkey) # playing piece
+    gameGrid.displayGrid() # printing board
+    gameGrid.vertCheck(player1,playerkey)
+    gameGrid.horizCheck(player1,playerkey)
     gameTurn += 1
-
-if fullGrid == 1:
+""
+if gameGrid.isFull == 1:
     print('Draw! Thanks for playing')
 else:
+    print('\n')
     print(playerkey[player1][1],'wins! Thanks for playing.')
+""
